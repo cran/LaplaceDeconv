@@ -1,12 +1,12 @@
-c46ca828108fec785f4aae1ad5842daf *DESCRIPTION
+1d79a2a533e41158d115bdc110ef6536 *DESCRIPTION
 ea9b0ffce067f35485b5ef7088505014 *LICENSE
 ab1bca09e59ae91936e61d70234394ab *NAMESPACE
-7186fb29feefbd4c3f352c132ea703af *R/LagLaplaceDeconvolution.R
+eb714c137b2d674fa3e2c5b789f56a0a *R/LagLaplaceDeconvolution.R
 e2717c00343affe3a4bf772a03bcbd44 *data/EX_DCEMRI_t0.rda
 8e683674fd7fd8ba0b5b9e9358c523ac *data/EX_DCEMRI_t1.rda
 d3781a042a1bca7e9cbccbe088a46b3c *man/BuildLaguerreSystem.Rd
 9357d6d5d4445623117de85fcfda2e7d *man/EX_DCEMRI_t0.rda-EX_DCEMRI_t1.rda.Rd
-80f126eb3f749f5596ff4f43213f79f5 *man/LagLaplDeconv.Rd
+41c32ea7c5f7a6368365a41e89eab420 *man/LagLaplDeconv.Rd
 1aba4515005023eada2df2ae25b1d68d *man/LaguerreLaplaceConvolution.Rd
 39d71115d1841564b5d360051c657355 *man/LaplaceConvolution.Rd
 8d933482ece8726f612d4f6f6794122e *man/MakeLaguerreMatrix.Rd

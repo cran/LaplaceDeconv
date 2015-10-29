@@ -11,36 +11,29 @@
 \alias{LaplaceDeconvolution,}
 \title{function LagLaplDeconv}
 \usage{
-LagLaplDeconv(Y, g, times = 1:length(Y), sigma, cpen = 2,
-  use.CV.reg = FALSE, atab = NULL, Mmax = 25, n = length(times),
-  aleph = n^0.8, ncores.max = Inf, verbose = FALSE, withplot = FALSE)
+LagLaplDeconv(Y, g, times = 1:length(Y), sigma, cpen = 2, atab = -1,
+  Mmax = 25, ncores.max = Inf, verbose = FALSE, withplot = FALSE)
 }
 \arguments{
 \item{Y}{numeric vector, the observed noisy observations of the Laplace convolution}
 
 \item{g}{numeric vector, the known kernel of the Laplace convolution}
 
-\item{times}{numeric vector, the observation times (default 1:length(Y))}
+\item{times}{numeric vector, the observation times (default \code{1:length(Y)})}
 
 \item{sigma}{numeric, the noise level}
 
 \item{cpen}{numeric, the penalization constant (default 2)}
 
-\item{use.CV.reg}{boolean, not used}
-
-\item{atab}{numeric vector, an array of value for a (default NULL, see Details)}
+\item{atab}{numeric vector, an array of value for a (default -1, see Details)}
 
 \item{Mmax}{integer, the maximum degree (default 25)}
 
-\item{n}{integer; the common length of Y, g and times (default length(times))}
+\item{ncores.max}{numeric, number of used cores (default \code{Inf})}
 
-\item{aleph}{numeric, not used}
+\item{verbose}{boolean to control information output (default \code{FALSE})}
 
-\item{ncores.max}{numeric, number of used cores (default Inf)}
-
-\item{verbose}{boolean to control information output (default FALSE)}
-
-\item{withplot}{boolean to control plot output (default FALSE)}
+\item{withplot}{boolean to control plot output (default \code{FALSE})}
 }
 \value{
 a list containing:
@@ -48,7 +41,7 @@ a list containing:
 \item \code{f.hat}, numeric vector, the estimate at observation times
 \item \code{q.hat}, numeric vector, the reconstructed convolution of the kernel g and the estimate f.hat, computed at observation times
 \item \code{f.coef}, numeric vector, the coefficients of f.hat in the selected Laguerre function basis
-\item \code{info}, more information --- not documented
+\item \code{info}, only for internal use --- not documented
 \item \code{a.hat}, numeric, the selected value of the parameter a
 \item \code{M0}, numeric, the dimension of the selected model
 \item \code{sigma}, numeric, the noise level
@@ -57,6 +50,9 @@ a list containing:
 }
 \description{
 Main function of this package : computes the Laplace deconvolution with noisy discrete non-equally spaced observations on a finite time interval (see reference).
+}
+\details{
+\code{atab} defines the values of the scale parameter used to build the Laguerre functions basis. If \code{atab} is of length 1 and negative then \code{atab<-seq(0.4,3,by=0.05/abs(atab))/sqrt(Tmax/10)} where \code{Tmax=max(times)}.
 }
 \examples{
 \dontrun{
@@ -108,7 +104,7 @@ Main function of this package : computes the Laplace deconvolution with noisy di
  # display AIF and tumoral enhancements
  matplot(ex_dcemri$times,
    cbind(ex_dcemri$AIF,ex_dcemri$TUM_1,ex_dcemri$TUM_2,ex_dcemri$TUM_3),
-   ylab='',lty=1,type='b',pch='+',main='Observations')
+   ylab='',lty=1,type=c('b',rep('p',3)),pch='+',main='Observations')
  legend('topright',pch='+',legend=c('AIF','TUM_1','TUM_2','TUM_3'),col=1:4)
 
  # estimation of the contrast agent survival functions
@@ -116,14 +112,16 @@ Main function of this package : computes the Laplace deconvolution with noisy di
  L2 = LagLaplDeconv(ex_dcemri$TUM_2,ex_dcemri$AIF,ex_dcemri$times,ex_dcemri$sigma)
  L3 = LagLaplDeconv(ex_dcemri$TUM_3,ex_dcemri$AIF,ex_dcemri$times,ex_dcemri$sigma)
 
+ matlines(ex_dcemri$times,cbind(L1$q.hat,L2$q.hat,L3$q.hat),type='l',lty=1,col=2:4)
+
  # display results of estimation
  matplot(ex_dcemri$times,cbind(L1$f.hat,L2$f.hat,L3$f.hat),type='l',lty=1,col=2:4,
    ylab='survival',main='Contrast agent survival fcts')
  legend('topright',lty=1,col=2:4,
    legend=c(
-     'TUM_1',
-     'TUM_2',
-     'TUM_3'
+     paste0('TUM_1 - a.hat=',round(L1$a.hat,digits=2)),
+     paste0('TUM_2 - a.hat=',round(L2$a.hat,digits=2)),
+     paste0('TUM_3 - a.hat=',round(L3$a.hat,digits=2))
      )
    )
  }

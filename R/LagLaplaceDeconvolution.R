@@ -178,7 +178,7 @@ MakeLaguerreMatrix = function(a=1/2,M){
 
 BuildLaguerreSystem = function(a,g,times,Mmax,tol=1e-7){
 
-  # don't use smaller tolerance than 1e-7 does not work
+  # don't use smaller tolerance than 1e-7 : does not work
 
   Phi = MakeLaguerreMatrix(a,Mmax)(times)
 
@@ -187,10 +187,7 @@ BuildLaguerreSystem = function(a,g,times,Mmax,tol=1e-7){
     return(BuildLaguerreSystem(a,g,times,Mmax=Phi.qr$rank))
 
   # Find expansion of observations in Laguerre functions
-  # gcoef = qr.coef(Phi.qr, g)
-  # gapprox = qr.fitted(Phi.qr,g)
   gcoef = backsolve(qr.R(Phi.qr),t(qr.Q(Phi.qr))%*%g,upper.tri=T)
-  # gapprox = qr.Q(Phi.qr)%*%t(qr.Q(Phi.qr))%*%g
 
   # Construction of the lower triangular Toeplitz matrix
   dg = diff(c(0,gcoef))
@@ -202,14 +199,10 @@ BuildLaguerreSystem = function(a,g,times,Mmax,tol=1e-7){
   if (rankGG<Mmax) # correct for G-rank degeneracy
     return(BuildLaguerreSystem(a,g,times,Mmax=rankGG))
 
-  # PhiPhi.inv = chol2inv(qr.R(Phi.qr))
-  # GM.inv = forwardsolve(GM,diag(rep(1,Mmax)))
-
   list(gcoef=gcoef,GM=GM,Phi=Phi,Phi.qr=Phi.qr,Mmax=Mmax,a=a,g=g,times=times)
 }
 
 Normalizing = function(Y,g,times,sigma,pow=2){
-  Tmax = max(times)
   g.abs = abs(g)^pow
   g.Lpow = sum(diff(times)*(g.abs[-1]+g.abs[-length(g)])/2)^(1/pow)
   list(g=g/g.Lpow,Y=Y/g.Lpow,times=times,sigma=sigma/g.Lpow,g.Lpow=g.Lpow)
@@ -248,17 +241,15 @@ CheckConditionnementQR = function(a,g,times,Mmax,aleph){
 #'
 #' @param Y numeric vector, the observed noisy observations of the Laplace convolution
 #' @param g numeric vector, the known kernel of the Laplace convolution
-#' @param times numeric vector, the observation times (default 1:length(Y))
+#' @param times numeric vector, the observation times (default \code{1:length(Y)})
 #' @param sigma numeric, the noise level
 #' @param cpen numeric, the penalization constant (default 2)
-#' @param use.CV.reg boolean, not used
-#' @param atab numeric vector, an array of value for a (default NULL, see Details)
+#' @param atab numeric vector, an array of value for a (default -1, see Details)
 #' @param Mmax integer, the maximum degree (default 25)
-#' @param n integer; the common length of Y, g and times (default length(times))
-#' @param aleph numeric, not used
-#' @param ncores.max numeric, number of used cores (default Inf)
-#' @param verbose boolean to control information output (default FALSE)
-#' @param withplot boolean to control plot output (default FALSE)
+#' @param ncores.max numeric, number of used cores (default \code{Inf})
+#' @param verbose boolean to control information output (default \code{FALSE})
+#' @param withplot boolean to control plot output (default \code{FALSE})
+#' @details \code{atab} defines the values of the scale parameter used to build the Laguerre functions basis. If \code{atab} is of length 1 and negative then \code{atab<-seq(0.4,3,by=0.05/abs(atab))/sqrt(Tmax/10)} where \code{Tmax=max(times)}.
 #' @author Y. Rozenholc and M. Pensky
 #' @references \emph{Laplace deconvolution on the basis of time domain data and its application to Dynamic Contrast Enhanced imaging} by F. Comte, C-A. Cuenod, M. Pensky, Y. Rozenholc (ArXiv http://arxiv.org/abs/1405.7107)
 #'
@@ -267,7 +258,7 @@ CheckConditionnementQR = function(a,g,times,Mmax,aleph){
 #' \item \code{f.hat}, numeric vector, the estimate at observation times
 #' \item \code{q.hat}, numeric vector, the reconstructed convolution of the kernel g and the estimate f.hat, computed at observation times
 #' \item \code{f.coef}, numeric vector, the coefficients of f.hat in the selected Laguerre function basis
-#' \item \code{info}, more information --- not documented
+#' \item \code{info}, only for internal use --- not documented
 #' \item \code{a.hat}, numeric, the selected value of the parameter a
 #' \item \code{M0}, numeric, the dimension of the selected model
 #' \item \code{sigma}, numeric, the noise level
@@ -326,7 +317,7 @@ CheckConditionnementQR = function(a,g,times,Mmax,aleph){
 #'  # display AIF and tumoral enhancements
 #'  matplot(ex_dcemri$times,
 #'    cbind(ex_dcemri$AIF,ex_dcemri$TUM_1,ex_dcemri$TUM_2,ex_dcemri$TUM_3),
-#'    ylab='',lty=1,type='b',pch='+',main='Observations')
+#'    ylab='',lty=1,type=c('b',rep('p',3)),pch='+',main='Observations')
 #'  legend('topright',pch='+',legend=c('AIF','TUM_1','TUM_2','TUM_3'),col=1:4)
 #'
 #'  # estimation of the contrast agent survival functions
@@ -334,20 +325,22 @@ CheckConditionnementQR = function(a,g,times,Mmax,aleph){
 #'  L2 = LagLaplDeconv(ex_dcemri$TUM_2,ex_dcemri$AIF,ex_dcemri$times,ex_dcemri$sigma)
 #'  L3 = LagLaplDeconv(ex_dcemri$TUM_3,ex_dcemri$AIF,ex_dcemri$times,ex_dcemri$sigma)
 #'
+#'  matlines(ex_dcemri$times,cbind(L1$q.hat,L2$q.hat,L3$q.hat),type='l',lty=1,col=2:4)
+#'
 #'  # display results of estimation
 #'  matplot(ex_dcemri$times,cbind(L1$f.hat,L2$f.hat,L3$f.hat),type='l',lty=1,col=2:4,
 #'    ylab='survival',main='Contrast agent survival fcts')
 #'  legend('topright',lty=1,col=2:4,
 #'    legend=c(
-#'      'TUM_1',
-#'      'TUM_2',
-#'      'TUM_3'
+#'      paste0('TUM_1 - a.hat=',round(L1$a.hat,digits=2)),
+#'      paste0('TUM_2 - a.hat=',round(L2$a.hat,digits=2)),
+#'      paste0('TUM_3 - a.hat=',round(L3$a.hat,digits=2))
 #'      )
 #'    )
 #'  }
 
-LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,use.CV.reg=FALSE,atab=NULL,
-                         Mmax=25,n=length(times),aleph=n^0.8,ncores.max=Inf,verbose=FALSE,withplot=FALSE){
+LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,atab=-1,Mmax=25,
+                         ncores.max=Inf,verbose=FALSE,withplot=FALSE){
 
   # Implement a choice of parameter a based on minimizing the residuals of the penalized estimate when a varies
 
@@ -364,18 +357,12 @@ LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,use.CV.reg=FALSE,ata
   use.multicore = (ncores.max>1)
   ncores.max = min(ncores.max,detectCores())
 
-  if (!is.null(g)) {
-    L = Normalizing(Y,g,times,sigma)
-    Y = L$Y; g = L$g; times = L$times; sigma = L$sigma
-  }
+  L = Normalizing(Y,g,times,sigma)
+  Y = L$Y; g = L$g; times = L$times; sigma = L$sigma
+
   Tmax = times[n]
 
-  # if (is.null(atab)) atab = seq(0.05,1.35,l=27) # use for Figure in 23/11/2014
-  # if (is.null(atab)) atab = seq(0.05,1.35/log10(Tmax),l=100) # new proposal
-  if (is.null(atab)) atab = seq(0.4,3,by=0.05)/sqrt(Tmax/10) # new proposal
-  if (length(atab)==1) atab = seq(0.4,3,by=atab)/sqrt(Tmax/10) # new proposal
-  # if (is.null(atab)) atab = seq(0.25,3.3,by=0.05)/sqrt(Tmax/10) # new proposal
-  # if (length(atab)==1) atab = seq(0.25,3.3,by=atab)/sqrt(Tmax/10) # new proposal
+  if ((length(atab)==1)&&(atab<0)) atab = seq(0.4,3,by=0.05/(-atab))/sqrt(Tmax/10) # new proposal
 
   M0tab = NA*atab
   CC.list = list()
@@ -386,7 +373,7 @@ LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,use.CV.reg=FALSE,ata
     # Do minimum contrast estimation and return residuals in the observation space
 
     if (is.na(M0tab[ia])) {
-      CC = CheckConditionnementQR(atab[ia],g,times,Mmax,aleph)
+      CC = CheckConditionnementQR(atab[ia],g,times,Mmax,aleph=n^0.8)
       M0tab[ia] <<- CC$Mmax
       CC.list[[ia]] <<- CC$LS
     }
@@ -450,7 +437,8 @@ LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,use.CV.reg=FALSE,ata
     # cross validation criterion
     R2.hat = colMeans((Y[,index]-q.hat)^2)^0.5
 
-    if (use.CV.reg) R2.hat = R2.hat + 2*sigma^2*m.hat*(1+log(m.hat)^3)/n # AKAIKE LIKE REGULARIZATION
+    # WAS used for JRSS-v2 but does not change the results and is not in the theory
+    # R2.hat = R2.hat + 2*sigma^2*m.hat*(1+log(m.hat)^3)/n # AKAIKE LIKE REGULARIZATION
 
     if (return_ctr)	return(R2.hat)
     else return(list(f.hat=f.hat,q.hat=q.hat,f.coef=f.coef,
@@ -492,9 +480,7 @@ LagLaplDeconv = function(Y,g,times=1:length(Y),sigma,cpen=2,use.CV.reg=FALSE,ata
     # if (verbose) print(D$Nu2Rho2)
   }
 
-  if (!is.null(g)) {### we denormalize ;-)
-    q.hat = L$g.Lpow*q.hat; Y = L$g.Lpow*Y; g = L$g.Lpow*g; sigma = L$g.pow*sigma
-  }
+  q.hat = L$g.Lpow*q.hat; Y = L$g.Lpow*Y; g = L$g.Lpow*g; sigma = L$g.pow*sigma;
 
   if (withplot) {
     matplot(times,cbind(Y,q.hat),type=c('p','l'),pch=c('+',''),lty=1,xlab='times',ylab='q',col=c('red','blue'))

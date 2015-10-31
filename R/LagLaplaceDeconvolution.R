@@ -1,3 +1,8 @@
+# release 1.0.0 : first release
+# release 1.0.1 : simplification
+# release 1.0.2 : remove use.CV
+# release 1.0.3 : correction of the data
+
 #' @import polynom
 #' @import orthopolynom
 #' @import parallel

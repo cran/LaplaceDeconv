@@ -2,7 +2,7 @@ Package: LaplaceDeconv
 Type: Package
 Title: Laplace Deconvolution with Noisy Discrete Non-Equally Spaced
         Observations on a Finite Time Interval
-Version: 1.0.3
+Version: 1.0.4
 Date: 2015-10-29
 Author: Yves Rozenholc (University Paris Descartes), Marianna Pensky (University
     of Central Florida)
@@ -19,6 +19,6 @@ Depends: parallel, polynom, orthopolynom
 Encoding: UTF-8
 RoxygenNote: 5.0.0
 NeedsCompilation: no
-Packaged: 2015-10-31 02:37:33 UTC; rozen
+Packaged: 2016-01-27 13:04:41 UTC; rozen
 Repository: CRAN
-Date/Publication: 2015-10-31 15:48:39
+Date/Publication: 2016-01-27 20:39:49

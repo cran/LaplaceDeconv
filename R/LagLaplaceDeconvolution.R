@@ -2,6 +2,7 @@
 # release 1.0.1 : simplification
 # release 1.0.2 : remove use.CV
 # release 1.0.3 : correction of the data
+# release 1.0.4 : correct export function names
 
 #' @import polynom
 #' @import orthopolynom
@@ -29,7 +30,7 @@ int.trapeze = function(t,y) {
 #'
 #' @return return the Laplace convolution of f and g using Trapezoidal formula and spline approximation for F
 #' @author Y. Rozenholc and M. Pensky
-#' @export
+#' @export LaplaceConvolution
 #'
 #' @examples
 #'  \dontrun{
@@ -74,7 +75,7 @@ LaplaceConvolution=function(t,g,f) {
 #'
 #' @return return the Laplace convolution of f and g using Trapezoidal formula and expansion of f in the Laguerre function basis
 #' @author Y. Rozenholc and M. Pensky
-#' @export
+#' @export LaguerreLaplaceConvolution
 #'
 #' @examples
 #'  \dontrun{
@@ -122,7 +123,7 @@ LaguerreLaplaceConvolution=function(t,g,f.coef,a) {
 #'
 #' @return a constructor of the M-first Laguerre functions with scale a
 #' @author Y. Rozenholc and M. Pensky
-#' @export
+#' @export MakeLaguerreMatrix
 #'
 #' @examples
 #' \dontrun{
@@ -169,7 +170,7 @@ MakeLaguerreMatrix = function(a=1/2,M){
 #' \item \code{g}, numeric vector, the kernel
 #' \item \code{times}, numeric vector, the observation times
 #' }
-#' @export
+#' @export BuildLaguerreSystem
 #'
 #' @examples
 #'  \dontrun{
@@ -269,7 +270,7 @@ CheckConditionnementQR = function(a,g,times,Mmax,aleph){
 #' \item \code{sigma}, numeric, the noise level
 #' \item \code{cpen}, numeric, the penalization constant used in the penalty
 #' }
-#' @export
+#' @export LagLaplDeconv
 #'
 #' @aliases LaguerreLaplaceDeconvolution, LagLaplaceDeconvolution, LaplaceDeconvolution, LagLaplaceDeconv, LaplaceDeconv, LaplDeconv, LaguerrePenalizedQR
 #' @examples
